@@ -1,40 +1,30 @@
-# LocalDiskStores 
-
-A `LocalDiskStore` is a bucket store that uses the local file system as the storage back end.
-
-It is a concrete subtype of `AbstractBucketStore`.
-
-
-# Usage
-
-### Read-only permission
-
-```julia
+using Test
 using LocalDiskStores
+
+################################################################################
+# Permission == :readonly
 
 store = LocalDiskStore(:readonly, "/var")
 
-listcontents(store)                    # Lists the contents of the root bucket (non-recursively)
-listcontents(store, "zzz") == nothing  # True because the bucket does not exist
+@test typeof(listcontents(store)) == Vector{String}  # Lists the contents of the root bucket (non-recursively)
+@test listcontents(store, "zzz") == nothing  # True because the bucket does not exist
 
-isbucket(store, "local")               # True, bucket exists.
+@test isbucket(store, "local") == true              # True, bucket exists.
 
-hasbucket(store, "local")              # False, bucket exists but was not created by the store.
+@test hasbucket(store, "local")  == false              # False, bucket exists but was not created by the store.
                                        # Bucket can be read but not updated or deleted unless permission is :unlimited.
 
-isobject(store, "local")               # False, "local" is a bucket not an object.
+@test isobject(store, "local") == false              # False, "local" is a bucket not an object.
 
-createbucket!(store, "mybucket")       # Failed (returns false), cannot create a bucket because permission is :readonly
+@test createbucket!(store, "mybucket") == false       # Failed (returns false), cannot create a bucket because permission is :readonly
 
-store["myobject"] = "My first object"  # Fails, cannot create an object because permission is :readonly
-hasobject(store, "myobject")           # False.
-```
+store["myobject"] = "My first object"  # Failed (returns false), cannot create an object because permission is :readonly
+@test hasobject(store, "myobject") == false
 
-### Limited write permission
 
-```julia
-using LocalDiskStores
-
+################################################################################
+# Permission == :limited
+#=
 store = LocalDiskStore(:limited, "/tmp/rootbucket")  # /tmp/rootbucket is created if it doesn't already exist
 
 listcontents(store)           # Lists the contents of the root bucket (non-recursively)
@@ -78,13 +68,12 @@ delete!(store, "xxx/myobject")   # Success (returns true)
 deletebucket!(store, "xxx/yyy")  # Success (returns true)
 deletebucket!(store, "xxx")      # Success (returns true) because the bucket was empty (and the bucket was created by the store)
 listcontents(store, "/var")
-```
+=#
 
-### Unlimited write permission
 
-```julia
-using LocalDiskStores
-
+################################################################################
+# Permission == :unlimited
+#=
 store = LocalDiskStore(:unlimited, "/tmp/rootbucket")  # /tmp/rootbucket is created if it doesn't already exist
 
 # Deleting a bucket that was not created by the store is permitted if write permission is :unlimited
@@ -103,4 +92,4 @@ String(store["myobject"])             # Reading is permitted
 store["myobject"] = "Some new value"  # Success (returns true), objects that were not created by the store can be updated
 String(store["myobject"])             # Value has changed to "Somoe new value"
 delete!(store, "myobject")            # Success (returns true), objects that were not created by the store can be deleted
-```
+=#
