@@ -73,23 +73,23 @@ rm("/tmp/rootbucket")
 
 ################################################################################
 # Permission == :unlimited
-#=
+
 store = LocalDiskStore(:unlimited, "/tmp/rootbucket")  # /tmp/rootbucket is created if it doesn't already exist
 
 # Deleting a bucket that was not created by the store is permitted if write permission is :unlimited
 mkdir("/tmp/rootbucket/xxx")
-isbucket(store, "xxx")        # True, bucket exists
-hasbucket(store, "xxx")       # False, bucket was not created by the store
-listcontents(store)           # Bucket xxx exists
-deletebucket!(store, "xxx")   # Success (returns true)
-listcontents(store)           # Bucket xxx no longer exists
+@test isbucket(store, "xxx") == true       # True, bucket exists
+@test hasbucket(store, "xxx") == false     # False, bucket was not created by the store
+@test listcontents(store) == ["xxx"]       # Bucket xxx exists
+@test deletebucket!(store, "xxx") == true  # Success (returns true)
+@test isempty(listcontents(store))         # Bucket xxx no longer exists
 
 # Similarly, objects not created by the store can be updated or deleted
 write("/tmp/rootbucket/myobject", "My first object")
-isobject(store, "myobject")           # True, object exists
-hasobject(store, "myobject")          # False, object was not created by the store
-String(store["myobject"])             # Reading is permitted
+@test isobject(store, "myobject") == true    # True, object exists
+@test hasobject(store, "myobject") == false  # False, object was not created by the store
+@test String(store["myobject"]) == "My first object"  # Reading is permitted
 store["myobject"] = "Some new value"  # Success (returns true), objects that were not created by the store can be updated
-String(store["myobject"])             # Value has changed to "Somoe new value"
-delete!(store, "myobject")            # Success (returns true), objects that were not created by the store can be deleted
-=#
+@test String(store["myobject"]) == "Some new value"  # Value has changed to "Somoe new value"
+@test delete!(store, "myobject") == true     # Success (returns true), objects that were not created by the store can be deleted
+rm("/tmp/rootbucket")

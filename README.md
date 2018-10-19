@@ -80,6 +80,7 @@ delete!(store, "xxx/myobject")   # Success (returns true)
 deletebucket!(store, "xxx/yyy")  # Success (returns true)
 deletebucket!(store, "xxx")      # Success (returns true) because the bucket was empty (and the bucket was created by the store)
 listcontents(store)
+rm("/tmp/rootbucket")            # Clean up
 ```
 
 ### Unlimited write permission
@@ -103,6 +104,7 @@ isobject(store, "myobject")           # True, object exists
 hasobject(store, "myobject")          # False, object was not created by the store
 String(store["myobject"])             # Reading is permitted
 store["myobject"] = "Some new value"  # Success (returns true), objects that were not created by the store can be updated
-String(store["myobject"])             # Value has changed to "Somoe new value"
+String(store["myobject"])             # Value has changed to "Some new value"
 delete!(store, "myobject")            # Success (returns true), objects that were not created by the store can be deleted
+rm("/tmp/rootbucket")                 # Clean up
 ```
