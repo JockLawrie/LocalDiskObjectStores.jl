@@ -21,7 +21,8 @@ end
 
 "If fullpath is a bucket, return a list of the bucket's contents, else return nothing."
 function _listcontents(store::LocalDiskStore, fullpath::String)
-    !_isbucket(store, fullpath) && return nothing
+    _isobject(store, fullpath)  && return false    # Cannot list the contents of an object
+    !_isbucket(store, fullpath) && return nothing  # Bucket doesn't exist
     readdir(fullpath)
 end
 
@@ -53,7 +54,7 @@ function _deletebucket!(store::LocalDiskStore, fullpath::String)
     contents = _listcontents(store, fullpath)
     contents == nothing && return false  # fullpath is not a bucket
     !isempty(contents)  && return false  # Bucket is not empty
-    rmdir(fullpath)
+    rm(fullpath)
     true
 end
 

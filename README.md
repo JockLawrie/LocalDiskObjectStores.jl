@@ -26,7 +26,7 @@ isobject(store, "local")               # False, "local" is a bucket not an objec
 
 createbucket!(store, "mybucket")       # Failed (returns false), cannot create a bucket because permission is :readonly
 
-store["myobject"] = "My first object"  # Fails, cannot create an object because permission is :readonly
+store["myobject"] = "My first object"  # No-op, cannot create an object because permission is :readonly
 hasobject(store, "myobject")           # False.
 ```
 
@@ -54,7 +54,7 @@ write("/tmp/rootbucket/myobject", "My first object")
 isobject(store, "myobject")           # True, object exists
 hasobject(store, "myobject")          # False, object was not created by the store
 String(store["myobject"])             # Reading is permitted
-store["myobject"] = "Some new value"  # Failed (returns false), cannot update object that was not created by the store
+store["myobject"] = "Some new value"  # No-op, cannot update object that was not created by the store
 String(store["myobject"])             # Value hasn't changed
 delete!(store, "myobject")            # Failed (returns false), cannot delete an object that was not created by the store
 rm("/tmp/rootbucket/myobject")        # Cleaning up...leave it how we found it
@@ -63,21 +63,23 @@ rm("/tmp/rootbucket/myobject")        # Cleaning up...leave it how we found it
 createbucket!(store, "xxx")                 # Success (returns true)
 listcontents(store)                         # Lists the contents of the root bucket
 createbucket!(store, "xxx")                 # Failed (returns false) because the bucket already exists
-store["xxx/myobject"] = "My first object"   # Success (returns true)
+store["xxx/myobject"] = "My first object"   # Success
+hasobject(store, "xxx/myobject")
+
 listcontents(store, "xxx")                  # Lists the contents of the xxx bucket
 listcontents(store, "xxx/myobject")         # Failed (returns false) because we can only list the contents of buckets, not objects
 String(store["xxx/myobject"])               # Get myobject's value
-String(store["xxx/my_nonexistent_object"])  # Failed (returns false) because the object does not exist
+store["xxx/my_nonexistent_object"] == nothing  # True because the object does not exist
 
 createbucket!(store, "xxx/yyy")  # Success (returns true), bucket yyy created inside bucket xxx
 listcontents(store, "xxx")       # Bucket xxx contains the object myobject and the bucket yyy
-listcontents(store, "yyy")       # Empty vector...bucket exists and is empty
+listcontents(store, "xxx/yyy")   # Empty vector...bucket exists and is empty
 
 deletebucket!(store, "xxx")      # Failed (returns false) because the bucket is not empty
 delete!(store, "xxx/myobject")   # Success (returns true)
 deletebucket!(store, "xxx/yyy")  # Success (returns true)
 deletebucket!(store, "xxx")      # Success (returns true) because the bucket was empty (and the bucket was created by the store)
-listcontents(store, "/var")
+listcontents(store)
 ```
 
 ### Unlimited write permission
