@@ -1,0 +1,7 @@
+name = "LocalDiskStores"
+uuid = "d8614c18-d27c-11e8-1f4d-079e53ef5bfc"
+authors = ["Jock Lawrie <jock.lawrie@gmail.com>"]
+version = "0.1.0"
+
+[deps]
+BucketStores = "e102f8c2-d0e1-11e8-0211-39155c3f0463"
