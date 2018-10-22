@@ -66,11 +66,11 @@ Delete bucket if:
 1. fullpath is a bucket name (the bucket exists), and
 2. The bucket is empty.
 """
-function _deletebucket!(store::LocalDiskStore, fullpath::String)
-    contents = _listcontents(store, fullpath)
-    contents == nothing && return false  # fullpath is not a bucket
+function _delete!(bucket::LocalDiskBucket)
+    contents = _read(bucket)
+    contents == nothing && return false  # Resource is not a bucket
     !isempty(contents)  && return false  # Bucket is not empty
-    rm(fullpath)
+    rm(bucket.id)
     true
 end
 
@@ -79,23 +79,23 @@ end
 # Objects
 
 "Return object if fullpath refers to an object, else return nothing."
-function _getindex(store::LocalDiskStore, fullpath::String) 
-    !_isobject(store, fullpath) && return nothing
+function _read(object::LocalDiskObject)
+    !_isobject(object.id) && return nothing
     read(fullpath)
 end
 
 
 "If fullpath is an object, set fullpath = v and return true, else return false."
-function _setindex!(store::LocalDiskStore, v, fullpath::String)
-    write(fullpath, v)
+function _create!(object::LocalDiskObject, v)
+    write(object.id, v)
     true
 end
 
 
 "If object exists, delete it and return true, else return false."
-function _delete!(store::LocalDiskStore, fullpath::String)
-    !_isobject(store, fullpath) && return false
-    rm(fullpath)
+function _delete!(object::LocalDiskObject)
+    !_isobject(object.id) && return false
+    rm(object.id)
     true
 end
 
