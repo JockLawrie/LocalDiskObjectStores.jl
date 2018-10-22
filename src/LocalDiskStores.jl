@@ -19,9 +19,17 @@ end
 
 
 struct LocalDiskStorage <: AbstractStorageBackend
-    bucket_type::LocalDiskBucket
-    object_type::LocalDiskObject
+    bucket_type::DataType
+    object_type::DataType
+
+    function LocalDiskStorage(bucket_type, object_type)
+        !(bucket_type == LocalDiskBucket) && error("LocalDiskStorage.bucket_type must be LocalDiskBucket.")
+        !(object_type == LocalDiskObject) && error("LocalDiskStorage.object_type must be LocalDiskObject.")
+        new(bucket_type, object_type)
+    end
 end
+
+LocalDiskStorage() = LocalDiskStorage(LocalDiskBucket, LocalDiskObject)
 
 
 ################################################################################
