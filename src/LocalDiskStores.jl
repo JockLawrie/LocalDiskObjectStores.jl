@@ -1,18 +1,26 @@
 module LocalDiskStores
 
 
-export LocalDiskStore,
-       listcontents, createbucket!, deletebucket!,  # Buckets (re-exported from AbstractBucketStores)
-       getindex, setindex!, delete!,                # Objects (re-exported from AbstractBucketStores)
-       islocal, isbucket, isobject,                 # Conveniences (re-exported from AbstractBucketStores)
-       hasbucket, hasobject                         # More conveniences (re-exported from AbstractBucketStores)
+export LocalDiskStorage
 
 
 using AbstractBucketStores
+using Authorization: AbstractResource
 
 
-struct LocalDiskStore <: AbstractBucketStore
-    @add_BucketStore_common_fields
+struct LocalDiskBucket <: AbstractResource
+    @add_required_fields_resource  # id
+end
+
+
+struct LocalDiskObject <: AbstractResource
+    @add_required_fields_resource  # id
+end
+
+
+struct LocalDiskStorage <: AbstractStorageBackend
+    bucket_type::LocalDiskBucket
+    object_type::LocalDiskObject
 end
 
 
@@ -20,10 +28,10 @@ end
 # Buckets
 
 "If fullpath is a bucket, return a list of the bucket's contents, else return nothing."
-function _listcontents(store::LocalDiskStore, fullpath::String)
-    _isobject(store, fullpath)  && return false    # Cannot list the contents of an object
-    !_isbucket(store, fullpath) && return nothing  # Bucket doesn't exist
-    readdir(fullpath)
+function _read(bucket::LocalDiskBucket)
+    _isobject(bucket.id)  && return false    # Cannot list the contents of an object
+    !_isbucket(bucket.id) && return nothing  # Bucket doesn't exist
+    readdir(bucket.id)
 end
 
 
@@ -34,11 +42,11 @@ Create bucket if:
 1. It doesn't already exist (as either a bucket or an object), and
 2. The containing bucket exists.
 """
-function _createbucket!(store::LocalDiskStore, fullpath::String)
-    _isbucket(store, fullpath) && return false  # Bucket already exists
-    cb, bktname = splitdir(fullpath)
-    !_isbucket(store, cb) && return false       # Containing bucket doesn't exist
-    mkdir(fullpath)
+function _create!(bucket::LocalDiskBucket)
+    _isbucket(bucket.id) && return false  # Bucket already exists
+    cb, bktname = splitdir(bucket.id)
+    !_isbucket(cb) && return false  # Containing bucket doesn't exist
+    mkdir(bucket.id)
     true
 end
 
@@ -87,10 +95,10 @@ end
 ################################################################################
 # Conveniences
 
-_islocal(store::LocalDiskStore) = true
+_islocal(backend::LocalDiskStorage) = true
 
-_isbucket(store::LocalDiskStore, fullpath::String) = isdir(fullpath)
+_isbucket(resourceid::String) = isdir(resourceid)
 
-_isobject(store::LocalDiskStore, fullpath::String) = isfile(fullpath)
+_isobject(resourceid::String) = isfile(resourceid)
 
 end
