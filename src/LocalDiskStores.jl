@@ -1,6 +1,5 @@
 module LocalDiskStores
 
-
 export LocalDiskStore
 
 using BucketStores: AbstractStorageBackend

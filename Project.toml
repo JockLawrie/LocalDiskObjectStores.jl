@@ -9,6 +9,7 @@ BucketStores = "e102f8c2-d0e1-11e8-0211-39155c3f0463"
 
 [extras]
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
 
 [targets]
-test = ["Test"]
+test = ["Test", "Dates"]
