@@ -1,13 +1,13 @@
-[[AbstractBucketStores]]
-deps = ["Authorization", "Logging"]
-path = "/var/hro/repos/AbstractBucketStores.jl"
-uuid = "e102f8c2-d0e1-11e8-0211-39155c3f0463"
-version = "0.1.0"
-
 [[Authorization]]
 deps = ["Dates"]
 path = "/var/hro/repos/Authorization.jl"
 uuid = "edb23f2a-d586-11e8-2b8a-1bcdb9b1bfed"
+version = "0.1.0"
+
+[[BucketStores]]
+deps = ["Authorization", "Logging"]
+path = "/var/hro/repos/BucketStores.jl"
+uuid = "e102f8c2-d0e1-11e8-0211-39155c3f0463"
 version = "0.1.0"
 
 [[Dates]]

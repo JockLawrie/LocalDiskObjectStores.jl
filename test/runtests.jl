@@ -1,5 +1,40 @@
 using Test
+using BucketStores
 using LocalDiskStores
+
+
+################################################################################
+# Unrestricted read/write permission on buckets and objects
+
+store = BucketStore("mystore", "/tmp/rootbucket", LocalDiskStore())
+setpermission!(store, :bucket, Permission(true, true, true, true))
+setpermission!(store, :object, Permission(true, true, true, true))
+
+@test listcontents(store) == nothing   # Root bucket doesn't yet exist
+@test createbucket!(store) == nothing  # Success (returns nothing)
+@test isempty(listcontents(store))     # Root bucket is empty
+
+
+@test createbucket!(store, "xxx") == nothing              # Success (returns nothing)
+@test listcontents(store) == ["xxx"]                      # Lists the contents of the root bucket
+@test typeof(createbucket!(store, "xxx")) == String       # Failed (returns error msg) because the bucket already exists
+store["xxx/myobject"] = "My first object"                 # Success (returns value)
+@test listcontents(store, "xxx") == ["myobject"]          # Lists the contents of the xxx bucket
+@test listcontents(store, "xxx/myobject") == nothing      # Failed (returns nothing) because we can only list the contents of buckets, not objects
+@test String(store["xxx/myobject"]) == "My first object"  # Get myobject's value
+@test store["xxx/my_nonexistent_object"] == nothing       # True because the object does not exist
+
+@test createbucket!(store, "xxx/yyy") == nothing          # Success (returns nothing), bucket yyy created inside bucket xxx
+@test listcontents(store, "xxx") == ["myobject", "yyy"]   # Bucket xxx contains the object myobject and the bucket yyy
+@test isempty(listcontents(store, "xxx/yyy"))             # Empty vector...bucket exists and is empty
+
+@test typeof(deletebucket!(store, "xxx")) == String  # Failed (returns error msg) because the bucket is not empty
+@test delete!(store, "xxx/myobject") == nothing      # Success (returns nothing)
+@test deletebucket!(store, "xxx/yyy") == nothing     # Success (returns nothing)
+@test deletebucket!(store, "xxx") == nothing         # Success (returns nothing) because the bucket was empty (and the bucket was created by the store)
+@test isempty(listcontents(store))
+rm("/tmp/rootbucket")  # Clean up
+
 
 ################################################################################
 # Permission == :readonly

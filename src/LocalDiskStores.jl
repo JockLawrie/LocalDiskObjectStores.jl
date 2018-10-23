@@ -3,8 +3,8 @@ module LocalDiskStores
 
 export LocalDiskStore
 
-
-using AbstractBucketStores
+using BucketStores: AbstractStorageBackend
+using BucketStores: @add_required_fields_backend
 using Authorization: AbstractResource
 using Authorization: @add_required_fields_resource
 
@@ -21,8 +21,7 @@ struct LocalDiskObject <: AbstractResource
 end
 
 struct LocalDiskStore <: AbstractStorageBackend
-    bucket_type::DataType
-    object_type::DataType
+    @add_required_fields_backend  # :bucket_type, :object_type
 
     function LocalDiskStore(bucket_type, object_type)
         !(bucket_type == LocalDiskBucket) && error("LocalDiskStore.bucket_type must be LocalDiskBucket.")
