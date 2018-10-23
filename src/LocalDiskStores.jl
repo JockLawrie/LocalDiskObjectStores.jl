@@ -1,96 +1,124 @@
 module LocalDiskStores
 
+export LocalDiskStore
 
-export LocalDiskStore,
-       listcontents, createbucket!, deletebucket!,  # Buckets (re-exported from AbstractBucketStores)
-       getindex, setindex!, delete!,                # Objects (re-exported from AbstractBucketStores)
-       islocal, isbucket, isobject,                 # Conveniences (re-exported from AbstractBucketStores)
-       hasbucket, hasobject                         # More conveniences (re-exported from AbstractBucketStores)
-
-
-using AbstractBucketStores
+using BucketStores: AbstractStorageBackend
+using BucketStores: @add_required_fields_backend
+using Authorization: AbstractResource
+using Authorization: @add_required_fields_resource
 
 
-struct LocalDiskStore <: AbstractBucketStore
-    @add_BucketStore_common_fields
+################################################################################
+# Types
+
+struct LocalDiskBucket <: AbstractResource
+    @add_required_fields_resource  # id
 end
+
+struct LocalDiskObject <: AbstractResource
+    @add_required_fields_resource  # id
+end
+
+struct LocalDiskStore <: AbstractStorageBackend
+    @add_required_fields_backend  # :bucket_type, :object_type
+
+    function LocalDiskStore(bucket_type, object_type)
+        !(bucket_type == LocalDiskBucket) && error("LocalDiskStore.bucket_type must be LocalDiskBucket.")
+        !(object_type == LocalDiskObject) && error("LocalDiskStore.object_type must be LocalDiskObject.")
+        new(bucket_type, object_type)
+    end
+end
+
+LocalDiskStore() = LocalDiskStore(LocalDiskBucket, LocalDiskObject)
 
 
 ################################################################################
 # Buckets
 
-"If fullpath is a bucket, return a list of the bucket's contents, else return nothing."
-function _listcontents(store::LocalDiskStore, fullpath::String)
-    _isobject(store, fullpath)  && return false    # Cannot list the contents of an object
-    !_isbucket(store, fullpath) && return nothing  # Bucket doesn't exist
-    readdir(fullpath)
+"Create bucket. If successful return nothing, else return an error message as a String."
+function _create!(bucket::LocalDiskBucket)
+    _isbucket(bucket.id) && return "Bucket already exists. Cannot create it again."
+    cb, bktname = splitdir(bucket.id)
+    !_isbucket(cb) && return "Cannot create bucket within a non-existent bucket."
+    try
+        mkdir(bucket.id)
+        return nothing
+    catch e
+        return e.prefix  # Assumes e is a SystemError
+    end
 end
 
 
-"""
-Returns true if bucket is successfully created, false otherwise.
-
-Create bucket if:
-1. It doesn't already exist (as either a bucket or an object), and
-2. The containing bucket exists.
-"""
-function _createbucket!(store::LocalDiskStore, fullpath::String)
-    _isbucket(store, fullpath) && return false  # Bucket already exists
-    cb, bktname = splitdir(fullpath)
-    !_isbucket(store, cb) && return false       # Containing bucket doesn't exist
-    mkdir(fullpath)
-    true
+"Read bucket. If successful return (true, value), else return (false, errormessage::String)."
+function _read(bucket::LocalDiskBucket)
+    _isobject(bucket.id)  && return (false, "Bucket ID refers to an object")
+    !_isbucket(bucket.id) && return (false, "Bucket doesn't exist")
+    try
+        return (true, readdir(bucket.id))
+    catch e
+        return (false, e.prefix)  # Assumes e is a SystemError
+    end
 end
 
 
-"""
-Returns true if bucket is successfully deleted, false otherwise.
-
-Delete bucket if:
-1. fullpath is a bucket name (the bucket exists), and
-2. The bucket is empty.
-"""
-function _deletebucket!(store::LocalDiskStore, fullpath::String)
-    contents = _listcontents(store, fullpath)
-    contents == nothing && return false  # fullpath is not a bucket
-    !isempty(contents)  && return false  # Bucket is not empty
-    rm(fullpath)
-    true
+"Delete bucket. If successful return nothing, else return an error message as a String."
+function _delete!(bucket::LocalDiskBucket)
+    ok, contents = _read(bucket)
+    contents == nothing && return "Resource is not a bucket. Cannot delete it with this function."
+    !isempty(contents)  && return "Bucket is not empty. Cannot delete it."
+    try
+        rm(bucket.id)
+        return nothing
+    catch e
+        return e.prefix  # Assumes e is a SystemError
+    end
 end
 
 
 ################################################################################
 # Objects
 
-"Return object if fullpath refers to an object, else return nothing."
-function _getindex(store::LocalDiskStore, fullpath::String) 
-    !_isobject(store, fullpath) && return nothing
-    read(fullpath)
+"Create object. If successful return nothing, else return an error message as a String."
+function _create!(object::LocalDiskObject, v)
+    try
+        write(object.id, v)
+        return nothing
+    catch e
+        return e.prefix  # Assumes e is a SystemError
+    end
 end
 
 
-"If fullpath is an object, set fullpath = v and return true, else return false."
-function _setindex!(store::LocalDiskStore, v, fullpath::String)
-    write(fullpath, v)
-    true
+"Read object. If successful return (true, value), else return (false, errormessage::String)."
+function _read(object::LocalDiskObject)
+    !_isobject(object.id) && return (false, "Object ID does not refer to an existing object")
+    try
+        true, read(object.id)
+    catch e
+        return false, e.prefix  # Assumes e is a SystemError
+    end
 end
 
 
-"If object exists, delete it and return true, else return false."
-function _delete!(store::LocalDiskStore, fullpath::String)
-    !_isobject(store, fullpath) && return false
-    rm(fullpath)
-    true
+"Delete object. If successful return nothing, else return an error message as a String."
+function _delete!(object::LocalDiskObject)
+    !_isobject(object.id) && return "Object ID does not refer to an existing object. Cannot delete a non-existent object."
+    try
+        rm(object.id)
+        return nothing
+    catch e
+        return e.prefix  # Assumes e is a SystemError
+    end
 end
 
 
 ################################################################################
 # Conveniences
 
-_islocal(store::LocalDiskStore) = true
+_islocal(backend::LocalDiskStore) = true
 
-_isbucket(store::LocalDiskStore, fullpath::String) = isdir(fullpath)
+_isbucket(resourceid::String) = isdir(resourceid)
 
-_isobject(store::LocalDiskStore, fullpath::String) = isfile(fullpath)
+_isobject(resourceid::String) = isfile(resourceid)
 
 end
