@@ -88,6 +88,6 @@ store["xxx/yyy/newobject"] = "Containing bucket doesn't exist"  # Fails (returns
 @test typeof(deletebucket!(store, "xxx")) == String  # Failed (returns error msg) because the bucket is not empty
 @test delete!(store, "xxx/myobject") == nothing      # Success (returns nothing)
 @test deletebucket!(store, "xxx/yyy") == nothing     # Success (returns nothing)
-@test deletebucket!(store, "xxx") == nothing         # Success (returns nothing) because the bucket was empty (and the bucket was created by the store)
+@test deletebucket!(store, "xxx") == nothing         # Success (returns nothing) because the bucket was empty
 @test isempty(listcontents(store))
 rm("/tmp/rootbucket")  # Clean up
