@@ -9,11 +9,11 @@ using Authorization: @add_required_fields_resource
 ################################################################################
 # Types
 
-struct LocalDiskBucket <: AbstractResource
+struct Bucket <: AbstractResource
     @add_required_fields_resource  # id
 end
 
-struct LocalDiskObject <: AbstractResource
+struct Object <: AbstractResource
     @add_required_fields_resource  # id
 end
 
@@ -21,20 +21,20 @@ struct Client <: ObjectStoreClient
     @add_required_fields_storageclient  # :bucket_type, :object_type
 
     function Client(bucket_type, object_type)
-        !(bucket_type == LocalDiskBucket) && error("LocalDiskStore.bucket_type must be LocalDiskBucket.")
-        !(object_type == LocalDiskObject) && error("LocalDiskStore.object_type must be LocalDiskObject.")
+        !(bucket_type == Bucket) && error("LocalDiskStore.bucket_type must be Bucket.")
+        !(object_type == Object) && error("LocalDiskStore.object_type must be Object.")
         new(bucket_type, object_type)
     end
 end
 
-Client() = Client(LocalDiskBucket, LocalDiskObject)
+Client() = Client(Bucket, Object)
 
 
 ################################################################################
 # Buckets
 
 "Create bucket. If successful return nothing, else return an error message as a String."
-function _create!(bucket::LocalDiskBucket)
+function _create!(bucket::Bucket)
     _isbucket(bucket.id) && return "Bucket already exists. Cannot create it again."
     cb, bktname = splitdir(bucket.id)
     !_isbucket(cb) && return "Cannot create bucket within a non-existent bucket."
@@ -48,7 +48,7 @@ end
 
 
 "Read bucket. If successful return (true, value), else return (false, errormessage::String)."
-function _read(bucket::LocalDiskBucket)
+function _read(bucket::Bucket)
     _isobject(bucket.id)  && return (false, "Bucket ID refers to an object")
     !_isbucket(bucket.id) && return (false, "Bucket doesn't exist")
     try
@@ -60,7 +60,7 @@ end
 
 
 "Delete bucket. If successful return nothing, else return an error message as a String."
-function _delete!(bucket::LocalDiskBucket)
+function _delete!(bucket::Bucket)
     ok, contents = _read(bucket)
     contents == nothing && return "Resource is not a bucket. Cannot delete it with this function."
     !isempty(contents)  && return "Bucket is not empty. Cannot delete it."
@@ -77,7 +77,7 @@ end
 # Objects
 
 "Create object. If successful return nothing, else return an error message as a String."
-function _create!(object::LocalDiskObject, v)
+function _create!(object::Object, v)
     try
         resourceid = object.id
         _isbucket(resourceid) && return "$(resourceid) is a bucket, not an object"
@@ -92,7 +92,7 @@ end
 
 
 "Read object. If successful return (true, value), else return (false, errormessage::String)."
-function _read(object::LocalDiskObject)
+function _read(object::Object)
     !_isobject(object.id) && return (false, "Object ID does not refer to an existing object")
     try
         true, read(object.id)
@@ -103,7 +103,7 @@ end
 
 
 "Delete object. If successful return nothing, else return an error message as a String."
-function _delete!(object::LocalDiskObject)
+function _delete!(object::Object)
     !_isobject(object.id) && return "Object ID does not refer to an existing object. Cannot delete a non-existent object."
     try
         rm(object.id)
