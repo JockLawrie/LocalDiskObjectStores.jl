@@ -1,9 +1,7 @@
-module LocalDiskStores
+module LocalDiskObjectStores
 
-export LocalDiskStore
-
-using BucketStores: AbstractStorageBackend
-using BucketStores: @add_required_fields_backend
+using ObjectStores:  ObjectStoreClient
+using ObjectStores:  @add_required_fields_storageclient
 using Authorization: AbstractResource
 using Authorization: @add_required_fields_resource
 
@@ -19,17 +17,17 @@ struct LocalDiskObject <: AbstractResource
     @add_required_fields_resource  # id
 end
 
-struct LocalDiskStore <: AbstractStorageBackend
-    @add_required_fields_backend  # :bucket_type, :object_type
+struct Client <: ObjectStoreClient
+    @add_required_fields_storageclient  # :bucket_type, :object_type
 
-    function LocalDiskStore(bucket_type, object_type)
+    function Client(bucket_type, object_type)
         !(bucket_type == LocalDiskBucket) && error("LocalDiskStore.bucket_type must be LocalDiskBucket.")
         !(object_type == LocalDiskObject) && error("LocalDiskStore.object_type must be LocalDiskObject.")
         new(bucket_type, object_type)
     end
 end
 
-LocalDiskStore() = LocalDiskStore(LocalDiskBucket, LocalDiskObject)
+Client() = Client(LocalDiskBucket, LocalDiskObject)
 
 
 ################################################################################
@@ -81,6 +79,10 @@ end
 "Create object. If successful return nothing, else return an error message as a String."
 function _create!(object::LocalDiskObject, v)
     try
+        resourceid = object.id
+        _isbucket(resourceid) && return "$(resourceid) is a bucket, not an object"
+        cb, shortname = splitdir(resourceid)
+        !_isbucket(cb) && return "Cannot create object $(resourceid) inside a non-existent bucket."
         write(object.id, v)
         return nothing
     catch e
@@ -115,7 +117,7 @@ end
 ################################################################################
 # Conveniences
 
-_islocal(backend::LocalDiskStore) = true
+_islocal(backend::Client) = true
 
 _isbucket(resourceid::String) = isdir(resourceid)
 

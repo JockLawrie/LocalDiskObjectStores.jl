@@ -4,18 +4,18 @@ path = "/var/hro/repos/Authorization.jl"
 uuid = "edb23f2a-d586-11e8-2b8a-1bcdb9b1bfed"
 version = "0.1.0"
 
-[[BucketStores]]
-deps = ["Authorization", "Logging"]
-path = "/var/hro/repos/BucketStores.jl"
-uuid = "e102f8c2-d0e1-11e8-0211-39155c3f0463"
-version = "0.1.0"
-
 [[Dates]]
 deps = ["Printf"]
 uuid = "ade2ca70-3891-5945-98fb-dc099432e06a"
 
 [[Logging]]
 uuid = "56ddb016-857b-54e1-b83d-db4d58db5568"
+
+[[ObjectStores]]
+deps = ["Authorization", "Logging"]
+path = "/var/hro/repos/ObjectStores.jl"
+uuid = "e102f8c2-d0e1-11e8-0211-39155c3f0463"
+version = "0.2.0"
 
 [[Printf]]
 deps = ["Unicode"]

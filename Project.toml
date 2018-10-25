@@ -1,15 +1,15 @@
-name = "LocalDiskStores"
+name = "LocalDiskObjectStores"
 uuid = "d8614c18-d27c-11e8-1f4d-079e53ef5bfc"
 authors = ["Jock Lawrie <jock.lawrie@gmail.com>"]
-version = "0.1.0"
+version = "0.2.0"
 
 [deps]
 Authorization = "edb23f2a-d586-11e8-2b8a-1bcdb9b1bfed"
-BucketStores = "e102f8c2-d0e1-11e8-0211-39155c3f0463"
+ObjectStores = "e102f8c2-d0e1-11e8-0211-39155c3f0463"
 
 [extras]
-Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
 test = ["Test", "Dates"]

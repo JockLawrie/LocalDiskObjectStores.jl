@@ -1,25 +1,27 @@
-# LocalDiskStores 
+# LocalDiskObjectStores 
 
-A `LocalDiskStore` is a bucket store that uses the local file system as the storage back end.
+This package defines an object storage client that uses the local file system as the storage back-end.
 
-It is a concrete subtype of `AbstractStorageBackend`.
+It is used as the storage client in an `ObjectStore` instance (see the [ObjectStores]() package for details).
+
+It is a concrete subtype of `ObjectStores.ObjectStoreClient`.
 
 
 ## Usage
 
-An instance is created by simply calling the constructor `LocalDiskStore()`.
-This is then passed to your `BucketStore` instance, as per the examples below.
+An instance is created by simply calling the constructor `LocalDiskObjectStore.Client()`.
+This is then passed to your `ObjectStore` instance, as per the examples below.
 
 
 ### Example 1: Bucket store with read-only permission
 
 ```julia
 using Dates
-using BucketStores
-using LocalDiskStores
+using ObjectStores
+using LocalDiskObjectStores
 
 # Create store
-store = BucketStore("mystore", "/tmp/rootbucket", LocalDiskStore())    # Root bucket is /tmp/rootbucket
+store = BucketStore("/tmp/rootbucket", LocalDiskObjectStores.Client())    # Root bucket is /tmp/rootbucket
 listcontents(store)  # Returns nothing. Store doesn't have read permission
 setpermission!(store, :bucket, Permission(false, true, false, false))  # cRud (read-only) permission for all buckets within the root bucket
 setpermission!(store, :object, Permission(false, true, false, false))  # cRud (read-only) permission for all objects within the root bucket
@@ -66,11 +68,11 @@ rm("/tmp/rootbucket", recursive=true)
 ### Example 2: Bucket store with unrestricted read/create/delete permission on buckets and objects
 
 ```julia
-using BucketStores
-using LocalDiskStores
+using ObjectStores
+using LocalDiskObjectStores
 
 # Create store
-store = BucketStore("mystore", "/tmp/rootbucket", LocalDiskStore())
+store = ObjectStore("/tmp/rootbucket", LocalDiskObjectStores.Client())
 setpermission!(store, :bucket, Permission(true, true, true, true))
 setpermission!(store, :object, Permission(true, true, true, true))
 

@@ -1,14 +1,14 @@
 using Test
 using Dates
-using BucketStores
-using LocalDiskStores
+using ObjectStores
+using LocalDiskObjectStores
 
 
 ################################################################################
 # Store with read-only permission
 
 # Create store
-store = BucketStore("mystore", "/tmp/rootbucket", LocalDiskStore())
+store = ObjectStore("/tmp/rootbucket", LocalDiskObjectStores.Client())
 @test listcontents(store) == nothing  # Store doesn't have read permission
 setpermission!(store, :bucket, Permission(false, true, false, false))
 setpermission!(store, :object, Permission(false, true, false, false))
@@ -55,7 +55,7 @@ rm("/tmp/rootbucket", recursive=true)
 # Store with unrestricted read/create/delete permission on buckets and objects
 
 # Create store
-store = BucketStore("mystore", "/tmp/rootbucket", LocalDiskStore())
+store = ObjectStore("/tmp/rootbucket", LocalDiskObjectStores.Client())
 setpermission!(store, :bucket, Permission(true, true, true, true))
 setpermission!(store, :object, Permission(true, true, true, true))
 
