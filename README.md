@@ -17,11 +17,10 @@ This is then passed to your `ObjectStore` instance, as per the examples below.
 
 ```julia
 using Dates
-using ObjectStores
 using LocalDiskObjectStores
 
 # Create store
-store = BucketStore("/tmp/rootbucket", LocalDiskObjectStores.Client())    # Root bucket is /tmp/rootbucket
+store = LocalDiskObjectStore("/tmp/rootbucket")    # Root bucket is /tmp/rootbucket
 listcontents(store)  # Returns nothing. Store doesn't have read permission
 setpermission!(store, :bucket, Permission(false, true, false, false))  # cRud (read-only) permission for all buckets within the root bucket
 setpermission!(store, :object, Permission(false, true, false, false))  # cRud (read-only) permission for all objects within the root bucket
@@ -72,7 +71,7 @@ using ObjectStores
 using LocalDiskObjectStores
 
 # Create store
-store = ObjectStore("/tmp/rootbucket", LocalDiskObjectStores.Client())
+store = LocalDiskObjectStore("/tmp/rootbucket")
 setpermission!(store, :bucket, Permission(true, true, true, true))
 setpermission!(store, :object, Permission(true, true, true, true))
 
