@@ -1,6 +1,5 @@
 using Test
 using Dates
-using ObjectStores
 using LocalDiskObjectStores
 
 
@@ -8,7 +7,7 @@ using LocalDiskObjectStores
 # Store with read-only permission
 
 # Create store
-store = ObjectStore("/tmp/rootbucket", LocalDiskObjectStores.Client())
+store = LocalDiskObjectStore("/tmp/rootbucket")
 @test listcontents(store) == nothing  # Store doesn't have read permission
 setpermission!(store, :bucket, Permission(false, true, false, false))
 setpermission!(store, :object, Permission(false, true, false, false))
@@ -33,7 +32,7 @@ store["xxx/myobject"] = "My first object"    # No-op, store doesn't have create 
 @test !isobject(store, "xxx/myobject")       # "xxx/myobject" doesn't exist
 
 # Add temporary create permission for objects in bucket root/xxx
-setpermission!(store, r"/tmp/rootbucket/xxx/*", Permission(true, true, true, true, now() + Second(5)))
+setpermission!(store, r"^/tmp/rootbucket/xxx/*", Permission(true, true, true, true, now() + Second(5)))
 store["xxx/myobject"] = "My object"
 @test isobject(store, "xxx/myobject")        # "xxx/myobject" now exists
 @test String(store["xxx/myobject"]) == "My object"
@@ -55,7 +54,7 @@ rm("/tmp/rootbucket", recursive=true)
 # Store with unrestricted read/create/delete permission on buckets and objects
 
 # Create store
-store = ObjectStore("/tmp/rootbucket", LocalDiskObjectStores.Client())
+store = LocalDiskObjectStore("/tmp/rootbucket")
 setpermission!(store, :bucket, Permission(true, true, true, true))
 setpermission!(store, :object, Permission(true, true, true, true))
 

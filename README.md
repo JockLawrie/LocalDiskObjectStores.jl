@@ -1,27 +1,17 @@
 # LocalDiskObjectStores 
 
-This package defines an object storage client that uses the local file system as the storage back-end.
-
-It is used as the storage client in an `ObjectStore` instance (see the [ObjectStores]() package for details).
-
-It is a concrete subtype of `ObjectStores.ObjectStoreClient`.
-
+This package defines an [ObjectStore](https://github.com/JockLawrie/ObjectStores.jl) that uses the local file system as the storage back-end.
 
 ## Usage
-
-An instance is created by simply calling the constructor `LocalDiskObjectStore.Client()`.
-This is then passed to your `ObjectStore` instance, as per the examples below.
-
 
 ### Example 1: Bucket store with read-only permission
 
 ```julia
 using Dates
-using ObjectStores
 using LocalDiskObjectStores
 
 # Create store
-store = BucketStore("/tmp/rootbucket", LocalDiskObjectStores.Client())    # Root bucket is /tmp/rootbucket
+store = LocalDiskObjectStore("/tmp/rootbucket")    # Root bucket is /tmp/rootbucket
 listcontents(store)  # Returns nothing. Store doesn't have read permission
 setpermission!(store, :bucket, Permission(false, true, false, false))  # cRud (read-only) permission for all buckets within the root bucket
 setpermission!(store, :object, Permission(false, true, false, false))  # cRud (read-only) permission for all objects within the root bucket
@@ -46,7 +36,7 @@ store["xxx/myobject"] = "My first object"  # No-op, store doesn't have create pe
 isobject(store, "xxx/myobject")            # "xxx/myobject" doesn't exist
 
 # Add temporary create permission for objects in bucket root/xxx
-setpermission!(store, r"/tmp/rootbucket/xxx/*", Permission(true, true, true, true, now() + Second(5)))
+setpermission!(store, r"^/tmp/rootbucket/xxx/*", Permission(true, true, true, true, now() + Second(5)))
 store["xxx/myobject"] = "My object"
 isobject(store, "xxx/myobject")        # "xxx/myobject" now exists
 String(store["xxx/myobject"])
@@ -64,15 +54,13 @@ isobject(store, "xxx/myobject")            # "xxx/myobject" doesn't exist becaus
 rm("/tmp/rootbucket", recursive=true)
 ```
 
-
 ### Example 2: Bucket store with unrestricted read/create/delete permission on buckets and objects
 
 ```julia
-using ObjectStores
 using LocalDiskObjectStores
 
 # Create store
-store = ObjectStore("/tmp/rootbucket", LocalDiskObjectStores.Client())
+store = LocalDiskObjectStore("/tmp/rootbucket")
 setpermission!(store, :bucket, Permission(true, true, true, true))
 setpermission!(store, :object, Permission(true, true, true, true))
 
