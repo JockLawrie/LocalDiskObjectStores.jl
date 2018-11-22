@@ -2,7 +2,6 @@ module LocalDiskObjectStores
 
 export LocalDiskObjectStore
 
-
 using Reexport
 using Authorization  # TODO: Delete this line once Authorization is registered
 @reexport using ObjectStores
