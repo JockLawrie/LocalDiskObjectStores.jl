@@ -36,7 +36,7 @@ store["xxx/myobject"] = "My first object"  # No-op, store doesn't have create pe
 isobject(store, "xxx/myobject")            # "xxx/myobject" doesn't exist
 
 # Add temporary create permission for objects in bucket root/xxx
-setpermission!(store, r"^/tmp/rootbucket/xxx/*", Permission(true, true, true, true, now() + Second(5)))
+setpermission!(store, r"^/tmp/rootbucket/xxx/.*", Permission(true, true, true, true, now() + Second(5)))
 store["xxx/myobject"] = "My object"
 isobject(store, "xxx/myobject")        # "xxx/myobject" now exists
 String(store["xxx/myobject"])
