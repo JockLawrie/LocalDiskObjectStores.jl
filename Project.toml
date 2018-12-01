@@ -4,7 +4,6 @@ authors = ["Jock Lawrie <jock.lawrie@gmail.com>"]
 version = "0.2.0"
 
 [deps]
-Authorization = "edb23f2a-d586-11e8-2b8a-1bcdb9b1bfed"
 ObjectStores = "e102f8c2-d0e1-11e8-0211-39155c3f0463"
 Reexport = "189a3867-3050-52da-a836-e630ba90ab69"
 
