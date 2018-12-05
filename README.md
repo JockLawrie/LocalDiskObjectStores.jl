@@ -2,6 +2,10 @@
 
 This package defines an [ObjectStore](https://github.com/JockLawrie/ObjectStores.jl) that uses the local file system as the storage back-end.
 
+[![Build Status](https://travis-ci.org/JuliaIO/LocalDiskObjectStores.jl.svg)](https://travis-ci.org/JuliaIO/LocalDiskObjectStores.jl)
+[![codecov.io](http://codecov.io/github/JuliaIO/LocalDiskObjectStores.jl/coverage.svg?branch=master)](http://codecov.io/github/JuliaIO/LocalDiskObjectStores.jl?branch=master)
+
+
 ## Usage
 
 ### Example 1: Bucket store with read-only permission
