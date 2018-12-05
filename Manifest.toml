@@ -37,10 +37,10 @@ deps = ["Base64"]
 uuid = "d6f4376e-aef5-505a-96c1-9c027394607a"
 
 [[ObjectStores]]
-deps = ["Authorization", "Logging"]
-path = "/var/hro/repos/ObjectStores.jl"
-uuid = "e102f8c2-d0e1-11e8-0211-39155c3f0463"
-version = "0.2.0"
+deps = ["Authorization", "Logging", "Test"]
+git-tree-sha1 = "85fd0cf856a804f9f72f0efbfcc60a3ae3b5faca"
+uuid = "03c2b57b-fb4c-5576-ac09-ef0ca0563633"
+version = "0.3.0"
 
 [[Pkg]]
 deps = ["Dates", "LibGit2", "Markdown", "Printf", "REPL", "Random", "SHA", "UUIDs"]
