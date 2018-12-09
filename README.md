@@ -8,7 +8,7 @@ This package defines an [ObjectStore](https://github.com/JockLawrie/ObjectStores
 
 ## Usage
 
-### Example 1: Bucket store with read-only permission
+### Example 1: Object store with read-only permission
 
 ```julia
 using Dates
@@ -58,7 +58,7 @@ isobject(store, "xxx/myobject")            # "xxx/myobject" doesn't exist becaus
 rm("/tmp/rootbucket", recursive=true)
 ```
 
-### Example 2: Bucket store with unrestricted read/create/delete permission on buckets and objects
+### Example 2: Object store with unrestricted read/create/delete permission on buckets and objects
 
 ```julia
 using LocalDiskObjectStores
